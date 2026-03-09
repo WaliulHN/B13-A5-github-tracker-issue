@@ -635,3 +635,167 @@
   </style>
 </head>
 <body>
+
+      
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand">
+        <i class="fab fa-github"></i>
+        <span>GitHub Issues Tracker</span>
+      </div>
+      <div class="navbar-right">
+        <div class="navbar-search">
+          <input type="text" id="searchInput" placeholder="Search issues...">
+        </div>
+        <button class="btn btn-primary" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  
+  <main class="main-content">
+    
+    <div class="tabs-container">
+      <button class="tab-btn active" data-tab="all" onclick="switchTab('all')">All</button>
+      <button class="tab-btn" data-tab="open" onclick="switchTab('open')">Open</button>
+      <button class="tab-btn" data-tab="closed" onclick="switchTab('closed')">Closed</button>
+    </div>
+
+    
+    <div class="stats-header">
+      <div class="stats-left">
+        <div class="stats-icon">
+          <i class="fas fa-layer-group"></i>
+        </div>
+        <div class="stats-text">
+          <h2 id="issueCount">Loading...</h2>
+          <p>Track and manage your project issues</p>
+        </div>
+      </div>
+      <div class="stats-legend">
+        <div class="legend-item">
+          <span class="legend-dot open"></span>
+          <span>Open</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot closed"></span>
+          <span>Closed</span>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+    </div>
+
+    
+    <div class="issues-grid" id="issuesGrid"></div>
+  </main>
+
+  
+  <div class="modal" id="issueModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Issue Details</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+    if (localStorage.getItem('isAuthenticated') !== 'true') {
+      window.location.href = 'index.html';
+    }
+
+    const API_BASE = 'https://phi-lab-server.vercel.app/api/v1/lab';
+    let allIssues = [];
+    let currentTab = 'all';
+    let searchQuery = '';
+
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      loadIssues();
+    });
+
+
+async function switchTab(tab) {
+  currentTab = tab;
+  
+  
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('issuesGrid').style.display = 'none';
+  
+  
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.tab === tab) {
+      btn.classList.add('active');
+    }
+  });
+  
+  
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
+  
+  renderIssues(filterIssues());
+  
+  
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('issuesGrid').style.display = 'grid';
+}
+
+    async function loadIssues() {
+      try {
+        document.getElementById('loading').style.display = 'block';
+        const response = await fetch(`${API_BASE}/issues`);
+        const result = await response.json();
+        allIssues = result.data || [];
+        
+        console.log('Loaded issues:', allIssues.length);
+        console.log('Sample issue:', allIssues[0]);
+        
+        updateStats();
+        renderIssues(filterIssues());
+      } catch (error) {
+        console.error('Error loading issues:', error);
+        document.getElementById('issueCount').textContent = 'Error loading issues';
+      } finally {
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    function filterIssues() {
+      console.log('Filtering - Current tab:', currentTab);
+      
+      let filtered = allIssues;
+      
+      
+      if (currentTab === 'open') {
+        filtered = filtered.filter(issue => {
+          const isOpen = issue.status === 'open';
+          console.log(`Issue ${issue.id}: status=${issue.status}, isOpen=${isOpen}`);
+          return isOpen;
+        });
+      } else if (currentTab === 'closed') {
+        filtered = filtered.filter(issue => issue.status === 'closed');
+      }
+      
+      
+      if (searchQuery) {
+        filtered = filtered.filter(issue => {
+          const searchText = `${issue.title} ${issue.description} ${issue.author} ${issue.labels.join(' ')}`.toLowerCase();
+          return searchText.includes(searchQuery);
+        });
+      }
+      
+      console.log('Filtered count:', filtered.length);
+      return filtered;
+    }
