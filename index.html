@@ -67,3 +67,251 @@
       margin-bottom: 6px;
     }
 
+ .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: #0969da;
+      box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background: #2da44e;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-login:hover {
+      background: #2c974b;
+    }
+
+    .btn-login:disabled {
+      background: #94d3a2;
+      cursor: not-allowed;
+    }
+
+    .credentials-box {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f6f8fa;
+      border-radius: 6px;
+      border: 1px solid #d0d7de;
+    }
+
+    .credentials-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #24292f;
+      margin-bottom: 8px;
+    }
+
+    .credentials-text {
+      font-size: 13px;
+      color: #57606a;
+      line-height: 1.6;
+    }
+
+    .credentials-code {
+      font-family: 'Courier New', monospace;
+      background: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid #d0d7de;
+      color: #0969da;
+    }
+
+    .error-message {
+      margin-top: 16px;
+      padding: 12px;
+      background: #ffebe9;
+      border: 1px solid #cf222e;
+      border-radius: 6px;
+      color: #cf222e;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+   
+@media (max-width: 480px) {
+  .login-container {
+    padding: 32px 24px;
+  }
+  
+  .login-logo {
+    font-size: 40px;
+  }
+  
+  .login-title {
+    font-size: 20px;
+  }
+  
+  .login-subtitle {
+    font-size: 13px;
+  }
+  
+  .form-label {
+    font-size: 13px;
+  }
+  
+  .form-input {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .btn-login {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  
+  .credentials-box {
+    padding: 12px;
+  }
+  
+  .credentials-text {
+    font-size: 12px;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo">
+        <i class="fab fa-github"></i>
+      </div>
+      <h1 class="login-title">GitHub Issues Tracker</h1>
+      <p class="login-subtitle">Sign in to manage your issues</p>
+    </div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          class="form-input" 
+          placeholder="Enter username"
+          required
+          autocomplete="username"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          class="form-input" 
+          placeholder="Enter password"
+          required
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button type="submit" class="btn-login" id="loginBtn">
+        <i class="fas fa-sign-in-alt"></i>
+        Sign In
+      </button>
+    </form>
+
+    <div class="credentials-box">
+      <div class="credentials-title">Demo Credentials:</div>
+      <div class="credentials-text">
+        Username: <span class="credentials-code">admin</span><br>
+        Password: <span class="credentials-code">admin123</span>
+      </div>
+    </div>
+
+    <div class="error-message" id="errorMsg"></div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const loginBtn = document.getElementById('loginBtn');
+      const errorMsg = document.getElementById('errorMsg');
+      
+      
+      const DEMO_USERNAME = 'admin';
+      const DEMO_PASSWORD = 'admin123';
+      
+
+      errorMsg.classList.remove('show');
+      
+      
+      if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
+        
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        
+        
+        setTimeout(() => {
+        
+          localStorage.setItem('isAuthenticated', 'true');
+          localStorage.setItem('user', JSON.stringify({ 
+            username: username,
+            loginTime: new Date().toISOString()
+          }));
+          
+          
+          window.location.href = 'dashboard.html';
+        }, 800);
+      } else {
+        
+        errorMsg.textContent = '❌ Invalid credentials. Please use the demo credentials above.';
+        errorMsg.classList.add('show');
+        
+        
+        const container = document.querySelector('.login-container');
+        container.style.animation = 'shake 0.5s';
+        setTimeout(() => {
+          container.style.animation = '';
+        }, 500);
+      }
+    });
+
+    
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    
+    if (localStorage.getItem('isAuthenticated') === 'true') {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>
+
