@@ -22,5 +22,4 @@ Ans - It's a shorter syntax for writing functions using the fat arrow => instead
 
 Ans - These are strings defined with backticks instead of single or double quotes. The biggest advantage is interpolation, where you can embed variables directly inside the string using ${variable} without worrying about concatenation. It also makes multi-line strings way easier since you don't need to add \n characters everywhere.
 
-##
 
