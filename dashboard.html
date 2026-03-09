@@ -72,3 +72,146 @@
       border-color: #0969da;
       box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
     }
+
+     .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #8250df;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #6a3cb8;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #d0d7de;
+      color: #24292f;
+    }
+
+    .btn-outline:hover {
+      background: #f6f8fa;
+    }
+
+      
+    .main-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 32px;
+    }
+
+    
+    .tabs-container {
+      background: white;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #57606a;
+    }
+
+    .tab-btn:hover {
+      background: #f6f8fa;
+    }
+
+    .tab-btn.active {
+      background: #8250df;
+      color: white;
+    }
+
+    
+    .stats-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding: 16px 0;
+    }
+
+    .stats-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stats-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .stats-text h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .stats-text p {
+      font-size: 14px;
+      color: #57606a;
+    }
+
+    .stats-legend {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.open {
+      background: #2da44e;
+    }
+
+    .legend-dot.closed {
+      background: #8250df;
+    }
+
+    
+    .issues-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
