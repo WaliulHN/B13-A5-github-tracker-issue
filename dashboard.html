@@ -19,7 +19,7 @@
       line-height: 1.5;
     }
 
-    /* Navbar */
+    
     .navbar {
       background: white;
       border-bottom: 1px solid #d0d7de;
@@ -491,7 +491,7 @@
       color: #24292f;
 
 @media (max-width: 768px) {
-  /* Navbar */
+  
   .navbar {
     padding: 12px 16px;
   }
@@ -530,12 +530,12 @@
     justify-content: center;
   }
   
-  /* Main Content */
+  
   .main-content {
     padding: 16px;
   }
   
-  /* Stats Header */
+  
   .stats-header {
     flex-direction: column;
     align-items: flex-start;
@@ -547,7 +547,7 @@
     justify-content: flex-start;
   }
   
-  /* Tabs */
+  
   .tabs-container {
     padding: 6px;
   }
@@ -557,7 +557,7 @@
     font-size: 13px;
   }
   
-  /* Issue Cards */
+  
   .issue-card {
     padding: 12px;
   }
@@ -577,7 +577,7 @@
     gap: 4px;
   }
   
-  /* Modal */
+  
   .modal-content {
     margin: 16px;
     max-width: calc(100% - 32px);
@@ -604,9 +604,9 @@
 }
 
 @media (max-width: 480px) {
-  /* Smaller text on very small screens */
+  
   .navbar-brand span {
-    display: none; /* Hide text, show only icon */
+    display: none; 
   }
   
   .stats-text h2 {
@@ -799,3 +799,173 @@ async function switchTab(tab) {
       console.log('Filtered count:', filtered.length);
       return filtered;
     }
+
+     function updateStats() {
+      const total = allIssues.length;
+      const open = allIssues.filter(i => i.status === 'open').length;
+      const closed = allIssues.filter(i => i.status === 'closed').length;
+      
+      document.getElementById('issueCount').textContent = `${total} Issues`;
+      
+      
+      document.querySelector('[data-tab="all"]').textContent = `All (${total})`;
+      document.querySelector('[data-tab="open"]').textContent = `Open (${open})`;
+      document.querySelector('[data-tab="closed"]').textContent = `Closed (${closed})`;
+    }
+
+    function renderIssues(issues) {
+      const grid = document.getElementById('issuesGrid');
+      
+      if (issues.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #57606a;">
+            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+            <h3 style="font-size: 18px; margin-bottom: 8px;">No issues found</h3>
+            <p>There are no issues matching your current filter.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = issues.map(issue => {
+        const isOpen = issue.status === 'open';
+        const priorityClass = `priority-${issue.priority}`;
+        const borderClass = isOpen ? 'card-open' : 'card-closed';
+        const statusClass = isOpen ? 'open' : 'closed';
+        
+        const labels = issue.labels.map(label => {
+          let labelClass = 'label-bug';
+          if (label.toLowerCase().includes('help')) labelClass = 'label-help';
+          else if (label.toLowerCase().includes('enhancement')) labelClass = 'label-enhancement';
+          else if (label.toLowerCase().includes('good first')) labelClass = 'label-good-first';
+          return `<span class="label ${labelClass}">${label}</span>`;
+        }).join('');
+
+        const date = new Date(issue.createdAt).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+
+        return `
+          <div class="issue-card ${borderClass}" onclick="openModal(${issue.id})">
+            <div class="issue-header">
+              <div class="issue-status ${statusClass}">
+                <i class="fas ${isOpen ? 'fa-check' : 'fa-times'}"></i>
+              </div>
+              <span class="issue-priority ${priorityClass}">${issue.priority}</span>
+            </div>
+            <h3 class="issue-title">${escapeHtml(issue.title)}</h3>
+            <p class="issue-description">${escapeHtml(issue.description)}</p>
+            <div class="issue-labels">${labels}</div>
+            <div class="issue-footer">
+              <div class="issue-author">
+                <i class="fas fa-user"></i>
+                <span>${escapeHtml(issue.author)}</span>
+              </div>
+              <span>${date}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function openModal(id) {
+      try {
+        const response = await fetch(`${API_BASE}/issue/${id}`);
+        const result = await response.json();
+        const issue = result.data;
+
+        document.getElementById('modalTitle').textContent = issue.title;
+        document.getElementById('modalBody').innerHTML = `
+          <p style="margin-bottom: 20px; line-height: 1.6; font-size: 14px;">${escapeHtml(issue.description)}</p>
+          <div class="detail-row">
+            <div class="detail-label">Status:</div>
+            <div class="detail-value">
+              <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 12px; background: ${issue.status === 'open' ? '#dafbe1' : '#f6f8fa'}; color: ${issue.status === 'open' ? '#1a7f37' : '#8250df'}; font-weight: 600; border: 1px solid ${issue.status === 'open' ? '#2da44e' : '#8250df'};">
+                <i class="fas ${issue.status === 'open' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                ${issue.status}
+              </span>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Priority:</div>
+            <div class="detail-value">
+              <span class="issue-priority priority-${issue.priority}">${issue.priority}</span>
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Author:</div>
+            <div class="detail-value">${escapeHtml(issue.author)}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Assignee:</div>
+            <div class="detail-value">${issue.assignee ? escapeHtml(issue.assignee) : '<span style="color: #57606a;">Unassigned</span>'}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Labels:</div>
+            <div class="detail-value">
+              ${issue.labels.map(l => {
+                let cls = 'label-bug';
+                if (l.toLowerCase().includes('help')) cls = 'label-help';
+                else if (l.toLowerCase().includes('enhancement')) cls = 'label-enhancement';
+                else if (l.toLowerCase().includes('good first')) cls = 'label-good-first';
+                return `<span class="label ${cls}" style="margin-right: 6px; margin-bottom: 4px; display: inline-block;">${l}</span>`;
+              }).join('')}
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Created:</div>
+            <div class="detail-value">${new Date(issue.createdAt).toLocaleString()}</div>
+          </div>
+          ${issue.updatedAt ? `
+          <div class="detail-row">
+            <div class="detail-label">Updated:</div>
+            <div class="detail-value">${new Date(issue.updatedAt).toLocaleString()}</div>
+          </div>
+          ` : ''}
+        `;
+
+        document.getElementById('issueModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+      } catch (error) {
+        console.error('Error loading issue:', error);
+        alert('Error loading issue details');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('issueModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function logout() {
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('user');
+      window.location.href = 'index.html';
+    }
+
+    
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value.toLowerCase();
+      renderIssues(filterIssues());
+    });
+
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    
+    document.getElementById('issueModal').addEventListener('click', (e) => {
+      if (e.target.id === 'issueModal') closeModal();
+    });
+  </script>
+</body>
+</html>
